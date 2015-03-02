@@ -169,16 +169,16 @@ class GreedyBustersAgent(BustersAgent):
 		for distribution in livingGhostPositionDistributions:
 			bestPosition = None
 			bestProbability = None
-			for pos, probability in distribution:
+			for pos, probability in distribution.items():
 				if bestProbability == None or probability > bestProbability:
 					bestPosition = pos
 					bestProbability = probability
 
-		for action in legal:
-			new_pos = Actions.getSuccessor(pacmanPosition, action)
-			new_dist = self.distancer.getDistance(int(new_pos), int(bestPosition))
-			if bestChoiceDist == None or new_dist < bestChoiceDist:
-				bestChoiceDist = new_dist
-				bestChoice = action
+			for action in legal:
+				new_pos = Actions.getSuccessor(pacmanPosition, action)
+				new_dist = self.distancer.getDistance(new_pos, bestPosition)
+				if bestChoiceDist == None or new_dist < bestChoiceDist:
+					bestChoiceDist = new_dist
+					bestChoice = action
 				
 		return bestChoice
