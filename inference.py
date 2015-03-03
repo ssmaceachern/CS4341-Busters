@@ -161,13 +161,20 @@ class ExactInference(InferenceModule):
         #    if emissionModel[trueDistance] > 0:
         #        allPossible[p] = 1.0
 		
-	if noisyDistance == None:
-		allPossible[self.getJailPosition()] = 1.0
-	else:
-		for p in self.legalPositions:
-			trueDistance = util.manhattanDistance(p, pacmanPosition)
-			allPossible[p] = emissionModel[trueDistance] * self.beliefs[p]
-			
+        """
+		If the ghost is in the jail and the NoisyDistance is zero, then we update
+		our beliefs. Otherwise, for each legal position we can take, we draw the true distance
+		using the utility function and then update our beliefs based on that distance and the 
+		pre-existing beliefs.
+		"""
+		
+        if noisyDistance == None:
+            allPossible[self.getJailPosition()] = 1.0
+        else:
+            for p in self.legalPositions:
+                trueDistance = util.manhattanDistance(p, pacmanPosition)
+                allPossible[p] = emissionModel[trueDistance] * self.beliefs[p]
+            
         "*** END YOUR CODE HERE ***"
 
         allPossible.normalize()
@@ -228,12 +235,18 @@ class ExactInference(InferenceModule):
 		"""
 		"*** YOUR CODE HERE ***"
 		allPossible = util.Counter()
-
+		"""
+		For each legal position, we want to get the probability distribution for that state.
+		Once we have the new position distribution, then for each possible position in allPossible, 
+		we apply the abstracted probability (based on the ghost's position) towards pacman's beliefs, 
+		thus created a more accurate reading for every tick
+		"""
 		for p in self.legalPositions:
 			newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, p))
 			for new_pos, probability in newPosDist.items():
 				allPossible[new_pos] += probability * self.beliefs[p];
-			
+		
+		#Normalize the possible distribution and update beliefs
 		allPossible.normalize()
 		self.beliefs = allPossible
 				

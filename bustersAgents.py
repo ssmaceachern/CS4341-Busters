@@ -164,8 +164,13 @@ class GreedyBustersAgent(BustersAgent):
 			 if livingGhosts[i+1]]
 			 
 		"*** YOUR CODE HERE ***"
+        
+        #First we keep temp variables for holding the final results
 		bestChoice = None
 		bestChoiceDist = None
+        
+        #We iterate over the living Ghost positions and check for the most probable position.
+        #If we find one better than what we already have, then we switch them.
 		for distribution in livingGhostPositionDistributions:
 			bestPosition = None
 			bestProbability = None
@@ -173,7 +178,11 @@ class GreedyBustersAgent(BustersAgent):
 				if bestProbability == None or probability > bestProbability:
 					bestPosition = pos
 					bestProbability = probability
-
+            
+            #For each legal action, we use the getSuccessor function to get a new set 
+            #of actions based on pacman's position. We iterate over each action possible 
+            #while comparing the best position from before with the new suggested position.
+            #We then go with the action that offers the least amount of distance.
 			for action in legal:
 				new_pos = Actions.getSuccessor(pacmanPosition, action)
 				new_dist = self.distancer.getDistance(new_pos, bestPosition)
