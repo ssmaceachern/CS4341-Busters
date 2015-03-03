@@ -370,6 +370,22 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
+        """
+        for p in self.legalPositions:
+			newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, p))
+			for new_pos, probability in newPosDist.items():
+				allPossible[new_pos] += probability * self.beliefs[p];
+        """
+        
+        newParticles = []
+        #This is similar to what we did in Q2. The main difference is that
+        #We get the new distribution, but we can use util.sample to get
+        #a sample as opposed to iterating through the items of newPostDist
+        for p in self.particles:
+            newPostDist = self.getPositionDistribution(self.setGhostPosition(gameState, p))
+            newParticles.append(util.sample(newPostDist))
+        self.particles = newParticles
+        
             
             
     def getBeliefDistribution(self):
@@ -382,8 +398,9 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         beliefDist = util.Counter()
         #We want to update the beliefs uniformly based on the number of particles
+        ratio = (1.0 / self.numParticles)
         for p in self.particles:
-            beliefDist[p] += (1.0 / self.numParticles)
+            beliefDist[p] += ratio
         return beliefDist
 
 class MarginalInference(InferenceModule):
