@@ -284,7 +284,13 @@ class ParticleFilter(InferenceModule):
         weight with each position) is incorrect and may produce errors.
         """
         "*** YOUR CODE HERE ***"
-
+        #We need to initialize particles to filter within a list.
+        #And then for each legal position, we append that as a member of the list
+        self.particles = []
+        for i in range(self.numParticles):
+            index = i % len(self.legalPositions)
+            self.particles.append(self.legalPositions[index])
+            
     def observe(self, observation, gameState):
         """
         Update beliefs based on the given distance observation. Make sure to
@@ -316,7 +322,37 @@ class ParticleFilter(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        #Check to see if a ghost is in the jail
+        if noisyDistance == None:
+            self.particles = []
+            for i in range(self.numParticles):
+                self.particles.append(self.getJailPosition())
+        #Otherwise...
+        else:
+            #If a particle's value is not zero, then we'll add it to the particle list
+            positiveValue = False
+            particleWeights = util.Counter()
+            for p in self.particles:
+                #This is just like the observe method from q1 only
+                #we have to keep in mind the particles and their weights
+                trueDistance = util.manhattanDistance(p, pacmanPosition)
+                initWeight = emissionModel[trueDistance]
+                particleWeights[p] += initWeight
+                if initWeight > 0:
+                    positiveValue = True
+                    
+            #If we find a positive value, we want to add it to the set
+            if positiveValue == True:
+                self.particles = []
+                for i in range(self.numParticles):
+                #Using util.sample to get the sample from the belief dist for
+                #our particles
+                    self.particles.append(util.sample(particleWeights))
+            
+            #If we don't find a positive value, then restart with new particles
+            else:
+                self.initializeUniformly(gameState)
 
     def elapseTime(self, gameState):
         """
@@ -333,8 +369,9 @@ class ParticleFilter(InferenceModule):
         a belief distribution.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        #util.raiseNotDefined()
+            
+            
     def getBeliefDistribution(self):
         """
         Return the agent's current belief state, a distribution over ghost
@@ -343,7 +380,11 @@ class ParticleFilter(InferenceModule):
         Counter object)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        beliefDist = util.Counter()
+        #We want to update the beliefs uniformly based on the number of particles
+        for p in self.particles:
+            beliefDist[p] += (1.0 / self.numParticles)
+        return beliefDist
 
 class MarginalInference(InferenceModule):
     """
